@@ -183,12 +183,23 @@
   overflow-x: auto;
   flex-shrink: 0;
   width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ide-tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.ide-tab-bar.theme-light {
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .tab {
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 8px;
   height: 35px;
   background-color: #2d2d30;
   border-right: 1px solid #252526;
@@ -196,7 +207,10 @@
   cursor: pointer;
   font-size: 13px;
   min-width: 120px;
+  max-width: 200px;
   transition: all 0.1s ease;
+  position: relative;
+  user-select: none;
 }
 
 .tab:hover {
@@ -210,15 +224,91 @@
   border-bottom: 1px solid #1e1e1e;
 }
 
+.tab.drag-over {
+  background-color: #094771;
+  border-left: 2px solid #007acc;
+}
+
+/* Light theme tab styles */
+.ide-tab-bar.theme-light .tab {
+  background-color: #f3f3f3;
+  border-right: 1px solid #e5e5e5;
+  color: #424242;
+}
+
+.ide-tab-bar.theme-light .tab:hover {
+  background-color: #e8e8e8;
+  color: #000000;
+}
+
+.ide-tab-bar.theme-light .tab.active {
+  background-color: #ffffff;
+  color: #000000;
+  border-bottom: 1px solid #ffffff;
+}
+
 .tab-icon {
   margin-right: 6px;
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .tab-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  margin-right: 4px;
+}
+
+.tab-unsaved-indicator {
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.ide-tab-bar.theme-light .tab-unsaved-indicator {
+  color: #000000;
+}
+
+.tab-close-button {
+  background: none;
+  border: none;
+  color: #969696;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px;
+  margin-left: 4px;
+  border-radius: 2px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all 0.1s ease;
+}
+
+.tab:hover .tab-close-button {
+  opacity: 1;
+}
+
+.tab-close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.ide-tab-bar.theme-light .tab-close-button {
+  color: #424242;
+}
+
+.ide-tab-bar.theme-light .tab-close-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #000000;
 }
 
 /* Editor Area - VS Code Editor */

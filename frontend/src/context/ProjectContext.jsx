@@ -7,6 +7,8 @@ const initialState = {
   currentProject: null,
   fileTree: [],
   currentFile: null,
+  openTabs: [], // Array of open file tabs
+  unsavedChanges: new Map(), // Map of fileId -> boolean for tracking unsaved changes
   loading: false, // For projects and major operations
   fileTreeLoading: false, // For file tree operations
   fileLoading: false, // Separate loading state for file content
@@ -28,7 +30,12 @@ const ActionTypes = {
   ADD_FILE: 'ADD_FILE',
   REMOVE_FILE: 'REMOVE_FILE',
   SET_SYNC_STATUS: 'SET_SYNC_STATUS',
-  CLEAR_STATE: 'CLEAR_STATE'
+  CLEAR_STATE: 'CLEAR_STATE',
+  // Tab management actions
+  ADD_TAB: 'ADD_TAB',
+  CLOSE_TAB: 'CLOSE_TAB',
+  MOVE_TAB: 'MOVE_TAB',
+  SET_UNSAVED_CHANGES: 'SET_UNSAVED_CHANGES'
 };
 
 // Reducer function
@@ -61,7 +68,14 @@ function projectReducer(state, action) {
       return { ...state, fileTree: action.payload };
     
     case ActionTypes.SET_CURRENT_FILE:
-      return { ...state, currentFile: action.payload };
+      return { 
+        ...state, 
+        currentFile: action.payload,
+        // Add to tabs if not already open and file exists
+        openTabs: action.payload && !state.openTabs.find(tab => tab.id === action.payload.id)
+          ? [...state.openTabs, action.payload]
+          : state.openTabs
+      };
     
     case ActionTypes.UPDATE_FILE_CONTENT:
       return {
@@ -88,8 +102,58 @@ function projectReducer(state, action) {
     case ActionTypes.SET_SYNC_STATUS:
       return { ...state, syncStatus: action.payload };
     
+    case ActionTypes.ADD_TAB:
+      return {
+        ...state,
+        openTabs: state.openTabs.find(tab => tab.id === action.payload.id)
+          ? state.openTabs
+          : [...state.openTabs, action.payload]
+      };
+    
+    case ActionTypes.CLOSE_TAB:
+      const updatedTabs = state.openTabs.filter(tab => tab.id !== action.payload);
+      const newUnsavedChanges = new Map(state.unsavedChanges);
+      newUnsavedChanges.delete(action.payload);
+      
+      return {
+        ...state,
+        openTabs: updatedTabs,
+        unsavedChanges: newUnsavedChanges,
+        // If closing current file, switch to next available tab
+        currentFile: state.currentFile?.id === action.payload 
+          ? (updatedTabs.length > 0 ? updatedTabs[updatedTabs.length - 1] : null)
+          : state.currentFile
+      };
+    
+    case ActionTypes.MOVE_TAB:
+      const { fromIndex, toIndex } = action.payload;
+      const newOpenTabs = [...state.openTabs];
+      const [movedTab] = newOpenTabs.splice(fromIndex, 1);
+      newOpenTabs.splice(toIndex, 0, movedTab);
+      
+      return {
+        ...state,
+        openTabs: newOpenTabs
+      };
+    
+    case ActionTypes.SET_UNSAVED_CHANGES:
+      const newUnsavedMap = new Map(state.unsavedChanges);
+      if (action.payload.hasChanges) {
+        newUnsavedMap.set(action.payload.fileId, true);
+      } else {
+        newUnsavedMap.delete(action.payload.fileId);
+      }
+      
+      return {
+        ...state,
+        unsavedChanges: newUnsavedMap
+      };
+    
     case ActionTypes.CLEAR_STATE:
-      return initialState;
+      return {
+        ...initialState,
+        unsavedChanges: new Map() // Ensure Map is properly reinitialized
+      };
     
     default:
       return state;
@@ -291,10 +355,36 @@ export function ProjectProvider({ children }) {
     setError(null);
   }, []);
 
+  // Set current file (for tab switching)
+  const setCurrentFile = useCallback((file) => {
+    dispatch({ type: ActionTypes.SET_CURRENT_FILE, payload: file });
+  }, []);
+
   // Clear all state (for logout)
   const clearState = useCallback(() => {
     dispatch({ type: ActionTypes.CLEAR_STATE });
   }, []);
+
+  // Tab management functions
+  const addTab = useCallback((file) => {
+    dispatch({ type: ActionTypes.ADD_TAB, payload: file });
+  }, []);
+
+  const closeTab = useCallback((fileId) => {
+    dispatch({ type: ActionTypes.CLOSE_TAB, payload: fileId });
+  }, []);
+
+  const moveTab = useCallback((fromIndex, toIndex) => {
+    dispatch({ type: ActionTypes.MOVE_TAB, payload: { fromIndex, toIndex } });
+  }, []);
+
+  const setUnsavedChanges = useCallback((fileId, hasChanges) => {
+    dispatch({ type: ActionTypes.SET_UNSAVED_CHANGES, payload: { fileId, hasChanges } });
+  }, []);
+
+  const hasUnsavedChanges = useCallback((fileId) => {
+    return state.unsavedChanges.has(fileId);
+  }, [state.unsavedChanges]);
 
   const value = {
     // State
@@ -316,7 +406,17 @@ export function ProjectProvider({ children }) {
     setFileTreeLoading,
     setFileLoading,
     setError,
-    setSyncStatus
+    setSyncStatus,
+    
+    // File navigation
+    setCurrentFile,
+    
+    // Tab management
+    addTab,
+    closeTab,
+    moveTab,
+    setUnsavedChanges,
+    hasUnsavedChanges
   };
 
   return (

@@ -6,33 +6,83 @@ import { useProject } from '../context/ProjectContext';
 const getLanguageFromExtension = (filename) => {
   const extension = filename?.split('.').pop()?.toLowerCase();
   const languageMap = {
+    // JavaScript/TypeScript
     'js': 'javascript',
     'jsx': 'javascript',
+    'mjs': 'javascript',
     'ts': 'typescript',
     'tsx': 'typescript',
+    
+    // Python
     'py': 'python',
+    'pyx': 'python',
+    'pyi': 'python',
+    'pyw': 'python',
+    
+    // Web technologies
     'html': 'html',
     'htm': 'html',
+    'xhtml': 'html',
     'css': 'css',
     'scss': 'scss',
     'sass': 'sass',
+    'less': 'less',
+    
+    // Data formats
     'json': 'json',
-    'md': 'markdown',
-    'txt': 'plaintext',
+    'jsonc': 'json',
     'xml': 'xml',
     'yml': 'yaml',
     'yaml': 'yaml',
+    
+    // Documentation
+    'md': 'markdown',
+    'markdown': 'markdown',
+    'txt': 'plaintext',
+    'text': 'plaintext',
+    
+    // Shell/Scripts
     'sh': 'shell',
     'bash': 'shell',
-    'sql': 'sql',
-    'php': 'php',
-    'java': 'java',
-    'cpp': 'cpp',
+    'zsh': 'shell',
+    'fish': 'shell',
+    'bat': 'bat',
+    'cmd': 'bat',
+    'ps1': 'powershell',
+    
+    // C/C++ languages
     'c': 'c',
+    'h': 'c',
+    'cpp': 'cpp',
+    'cc': 'cpp',
+    'cxx': 'cpp',
+    'hpp': 'cpp',
+    'hh': 'cpp',
+    'hxx': 'cpp',
+    
+    // Java
+    'java': 'java',
+    'class': 'java',
+    
+    // Other popular languages
     'cs': 'csharp',
     'go': 'go',
     'rs': 'rust',
-    'rb': 'ruby'
+    'rb': 'ruby',
+    'php': 'php',
+    'sql': 'sql',
+    'r': 'r',
+    'swift': 'swift',
+    'kt': 'kotlin',
+    'scala': 'scala',
+    'dart': 'dart',
+    
+    // Configuration files
+    'ini': 'ini',
+    'cfg': 'ini',
+    'conf': 'ini',
+    'dockerfile': 'dockerfile',
+    'dockerignore': 'dockerfile'
   };
   return languageMap[extension] || 'plaintext';
 };
@@ -51,13 +101,15 @@ export default function EnhancedMonacoEditor({
   const isInitializedRef = useRef(false);
   const disposalTracker = useRef(new Set());
   const isDisposingRef = useRef(false);
+  const currentFileRef = useRef(null);
   
   const { 
     currentFile, 
     saveFileContent, 
     syncStatus, 
     currentProject,
-    setError 
+    setError,
+    setUnsavedChanges 
   } = useProject();
 
   const [editorState, setEditorState] = useState({
@@ -122,30 +174,32 @@ export default function EnhancedMonacoEditor({
     }
     
     saveTimeoutRef.current = setTimeout(async () => {
-      if (currentFile && autoSave) {
+      if (currentFileRef.current && autoSave) {
         try {
-          await saveFileContent(currentFile.id, content);
+          await saveFileContent(currentFileRef.current.id, content);
           setEditorState(prev => ({ ...prev, hasUnsavedChanges: false }));
+          setUnsavedChanges(currentFileRef.current.id, false);
         } catch (error) {
           console.error('Auto-save failed:', error);
           setError && setError('Auto-save failed: ' + error.message);
         }
       }
     }, autoSaveDelay);
-  }, [currentFile, autoSave, autoSaveDelay, saveFileContent, setError]);
+  }, [autoSave, autoSaveDelay, saveFileContent, setError, setUnsavedChanges]);
 
   // Manual save function
   const handleSave = useCallback(async () => {
-    if (!currentFile || !editorRef.current) return;
+    if (!currentFileRef.current || !editorRef.current) return;
     
     try {
       const content = editorRef.current.getValue();
-      await saveFileContent(currentFile.id, content);
+      await saveFileContent(currentFileRef.current.id, content);
       setEditorState(prev => ({ ...prev, hasUnsavedChanges: false }));
+      setUnsavedChanges(currentFileRef.current.id, false);
     } catch (error) {
       setError && setError('Save failed: ' + error.message);
     }
-  }, [currentFile, saveFileContent, setError]);
+  }, [saveFileContent, setError, setUnsavedChanges]);
 
   // Initialize Monaco Editor - only once
   useEffect(() => {
@@ -255,45 +309,187 @@ export default function EnhancedMonacoEditor({
         automaticLayout: true,
         minimap: { enabled: true },
         wordWrap: 'on',
+        
+        // Code folding and bracket matching
         folding: true,
+        foldingHighlight: true,
+        foldingImportsByDefault: false,
+        matchBrackets: 'always',
+        bracketPairColorization: { enabled: true },
+        
+        // Auto-indentation
+        autoIndent: 'full',
+        formatOnPaste: true,
+        formatOnType: true,
+        insertSpaces: true,
+        tabSize: 2,
+        detectIndentation: true,
+        
+        // Find and replace with regex support
+        find: {
+          addExtraSpaceOnTop: false,
+          autoFindInSelection: 'never',
+          seedSearchStringFromSelection: 'always'
+        },
+        
+        // Multiple file support and VS Code features
         lineDecorationsWidth: 10,
         lineNumbersMinChars: 3,
         glyphMargin: false,
         contextmenu: true,
         mouseWheelZoom: true,
         multiCursorModifier: 'ctrlCmd',
-        formatOnPaste: true,
-        formatOnType: true,
-        autoIndent: 'full',
+        selectionClipboard: false,
+        
+        // Language features
         codeLens: true,
         colorDecorators: true,
         links: true,
-        find: {
-          addExtraSpaceOnTop: false,
-          autoFindInSelection: 'never',
-          seedSearchStringFromSelection: 'always'
-        },
+        
+        // Suggestions and IntelliSense
         suggest: {
           showIcons: true,
           showSnippets: true,
-          showWords: true
-        }
+          showWords: true,
+          showMethods: true,
+          showFunctions: true,
+          showConstructors: true,
+          showFields: true,
+          showVariables: true,
+          showClasses: true,
+          showStructs: true,
+          showInterfaces: true,
+          showModules: true,
+          showProperties: true,
+          showEvents: true,
+          showOperators: true,
+          showUnits: true,
+          showValues: true,
+          showConstants: true,
+          showEnums: true,
+          showEnumMembers: true,
+          showKeywords: true,
+          showText: true,
+          showColors: true,
+          showFiles: true,
+          showReferences: true,
+          showFolders: true,
+          showTypeParameters: true,
+          filterGraceful: true,
+          snippetsPreventQuickSuggestions: false
+        },
+        
+        // Quick suggestions
+        quickSuggestions: {
+          other: true,
+          comments: false,
+          strings: false
+        },
+        quickSuggestionsDelay: 100,
+        
+        // Parameter hints
+        parameterHints: { enabled: true },
+        
+        // Hover
+        hover: { enabled: true },
+        
+        // Additional VS Code-like features
+        acceptSuggestionOnCommitCharacter: true,
+        acceptSuggestionOnEnter: 'on',
+        accessibilitySupport: 'auto',
+        autoClosingBrackets: 'always',
+        autoClosingQuotes: 'always',
+        autoSurround: 'languageDefined',
+        dragAndDrop: true,
+        emptySelectionClipboard: true,
+        copyWithSyntaxHighlighting: true
       });
 
       editorRef.current = editor;
 
-      // Add keyboard shortcuts
+      // Add VS Code keyboard shortcuts
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, handleSave);
+      
+      // Find and replace shortcuts
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+        editor.getAction('actions.find').run();
+      });
+      
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH, () => {
+        editor.getAction('editor.action.startFindReplaceAction').run();
+      });
+      
+      // Go to line
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG, () => {
+        editor.getAction('editor.action.gotoLine').run();
+      });
+      
+      // Format document
+      editor.addCommand(monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF, () => {
+        editor.getAction('editor.action.formatDocument').run();
+      });
+      
+      // Toggle comment
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash, () => {
+        editor.getAction('editor.action.commentLine').run();
+      });
+      
+      // Duplicate line
+      editor.addCommand(monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.DownArrow, () => {
+        editor.getAction('editor.action.copyLinesDownAction').run();
+      });
+      
+      // Move line up/down
+      editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.UpArrow, () => {
+        editor.getAction('editor.action.moveLinesUpAction').run();
+      });
+      
+      editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.DownArrow, () => {
+        editor.getAction('editor.action.moveLinesDownAction').run();
+      });
+      
+      // Select all occurrences
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
+        editor.getAction('editor.action.selectHighlights').run();
+      });
+      
+      // Multi-cursor shortcuts
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD, () => {
+        editor.getAction('editor.action.addSelectionToNextFindMatch').run();
+      });
+      
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.DownArrow, () => {
+        editor.getAction('editor.action.insertCursorBelow').run();
+      });
+      
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.UpArrow, () => {
+        editor.getAction('editor.action.insertCursorAbove').run();
+      });
       
       // Add content change listener for auto-save
       const changeDisposable = editor.onDidChangeModelContent(() => {
         setEditorState(prev => ({ ...prev, hasUnsavedChanges: true }));
+        
+        // Mark file as having unsaved changes in the context
+        // Use ref to get current file and avoid stale closure
+        if (currentFileRef.current) {
+          setUnsavedChanges(currentFileRef.current.id, true);
+        }
         
         if (autoSave && editorRef.current) {
           const content = editorRef.current.getValue();
           debouncedSave(content);
         }
       });
+
+      // Add event listener for external save requests (from tab close)
+      const handleExternalSave = (event) => {
+        if (event.detail && currentFileRef.current && event.detail.fileId === currentFileRef.current.id) {
+          handleSave();
+        }
+      };
+      
+      window.addEventListener('monaco-save-file', handleExternalSave);
 
       // Cleanup function
       return () => {
@@ -303,6 +499,9 @@ export default function EnhancedMonacoEditor({
         try {
           safeDispose(changeDisposable, 'main-change-disposable');
           safeDispose(editor, 'main-editor-instance');
+          
+          // Remove external save event listener
+          window.removeEventListener('monaco-save-file', handleExternalSave);
           
           if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
@@ -326,6 +525,9 @@ export default function EnhancedMonacoEditor({
 
   // Load file content when currentFile changes
   useEffect(() => {
+    // Update the ref to avoid stale closure in event handlers
+    currentFileRef.current = currentFile;
+    
     if (!editorRef.current || !currentFile) {
       // Clear editor if no file is selected
       if (editorRef.current && !currentFile) {
@@ -369,6 +571,11 @@ export default function EnhancedMonacoEditor({
         language,
         hasUnsavedChanges: false 
       }));
+      
+      // Clear unsaved changes when loading a new file
+      if (currentFile) {
+        setUnsavedChanges(currentFile.id, false);
+      }
       
     } catch (error) {
       console.error('Failed to load file content:', error);

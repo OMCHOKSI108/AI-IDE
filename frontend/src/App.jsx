@@ -6,6 +6,7 @@ import UserProfile from './components/UserProfile';
 import EnhancedMonacoEditor from './components/EnhancedMonacoEditor';
 import EnhancedFileTree from './components/EnhancedFileTree';
 import ProjectManager from './components/ProjectManager';
+import FileTabManager from './components/FileTabManager';
 import './IDE.css';
 
 function IDEInterface() {
@@ -97,12 +98,7 @@ function IDEInterface() {
           {/* Main Content Area */}
           <div className="ide-content">
             {/* Tab Bar */}
-            <div className="ide-tab-bar">
-              <div className="tab active">
-                <span className="tab-icon">📄</span>
-                <span className="tab-name">Welcome</span>
-              </div>
-            </div>
+            <FileTabManager theme={theme} />
             
             {/* Editor Area */}
             <div className={`ide-editor theme-${theme}`}>

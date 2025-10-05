@@ -486,7 +486,7 @@ export default function EnhancedFileTree() {
     deleteFile,
     currentFile,
     fileTreeLoading,
-    error 
+    error
   } = useProject();
   
   const { user } = useAuth();
@@ -513,6 +513,7 @@ export default function EnhancedFileTree() {
       setSelectedFileId(file.id);
       try {
         await loadFileContent(file.id);
+        // loadFileContent automatically adds file to tabs via SET_CURRENT_FILE action
       } catch (error) {
         console.error('Failed to load file:', error);
       }
