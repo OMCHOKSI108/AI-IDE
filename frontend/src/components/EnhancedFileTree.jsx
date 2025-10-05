@@ -586,7 +586,7 @@ export default function EnhancedFileTree() {
   }, [deleteFile, selectedFileId]);
 
   // Helper function to find file by ID recursively
-  const findFileById = (files, id) => {
+  const findFileById = useCallback((files, id) => {
     for (const file of files) {
       if (file.id === id) return file;
       if (file.children) {
@@ -595,7 +595,7 @@ export default function EnhancedFileTree() {
       }
     }
     return null;
-  };
+  }, []);
 
   // Root-level context menu handlers
   const handleRootContextMenu = (e) => {
@@ -669,9 +669,19 @@ export default function EnhancedFileTree() {
           alert('Please re-authenticate with Google Drive first.');
           return;
         }
-        const fileName = prompt('Enter file name:');
+        
+        // Check if selected item is a folder
+        let targetFolderId = null;
+        if (selectedFileId) {
+          const selectedFile = findFileById(fileTree, selectedFileId);
+          if (selectedFile?.type === 'folder') {
+            targetFolderId = selectedFileId;
+          }
+        }
+        
+        const fileName = prompt(`Enter file name${targetFolderId ? ` (will be created in selected folder)` : ''}:`);
         if (fileName && fileName.trim()) {
-          handleCreateFile(null, fileName.trim());
+          handleCreateFile(targetFolderId, fileName.trim());
         }
       }
       
@@ -682,9 +692,19 @@ export default function EnhancedFileTree() {
           alert('Please re-authenticate with Google Drive first.');
           return;
         }
-        const folderName = prompt('Enter folder name:');
+        
+        // Check if selected item is a folder
+        let targetFolderId = null;
+        if (selectedFileId) {
+          const selectedFile = findFileById(fileTree, selectedFileId);
+          if (selectedFile?.type === 'folder') {
+            targetFolderId = selectedFileId;
+          }
+        }
+        
+        const folderName = prompt(`Enter folder name${targetFolderId ? ` (will be created in selected folder)` : ''}:`);
         if (folderName && folderName.trim()) {
-          handleCreateFolder(null, folderName.trim());
+          handleCreateFolder(targetFolderId, folderName.trim());
         }
       }
       
@@ -878,18 +898,48 @@ export default function EnhancedFileTree() {
         borderBottom: '1px solid #30363d',
         marginBottom: '4px'
       }}>
+        {/* Show context when folder is selected */}
+        {selectedFileId && (() => {
+          const selectedFile = findFileById(fileTree, selectedFileId);
+          return selectedFile?.type === 'folder' ? (
+            <div style={{
+              fontSize: '11px',
+              color: '#858585',
+              marginRight: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              📁 <span>{selectedFile.name}</span>
+            </div>
+          ) : null;
+        })()}
         <button
           onClick={() => {
             if (user?.driveAuthStatus?.requiresReauth) {
               alert('Please re-authenticate with Google Drive first.');
               return;
             }
-            const fileName = prompt('Enter file name:');
+            
+            // Check if selected item is a folder
+            let targetFolderId = null;
+            if (selectedFileId) {
+              const selectedFile = findFileById(fileTree, selectedFileId);
+              if (selectedFile?.type === 'folder') {
+                targetFolderId = selectedFileId;
+              }
+            }
+            
+            const fileName = prompt(`Enter file name${targetFolderId ? ` (will be created in selected folder)` : ''}:`);
             if (fileName && fileName.trim()) {
-              handleCreateFile(null, fileName.trim());
+              handleCreateFile(targetFolderId, fileName.trim());
             }
           }}
-          title="New File (Ctrl+N)"
+          title={(() => {
+            const selectedFile = selectedFileId ? findFileById(fileTree, selectedFileId) : null;
+            const inFolder = selectedFile?.type === 'folder' ? ` in ${selectedFile.name}` : '';
+            return `New File${inFolder} (Ctrl+N)`;
+          })()}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -916,12 +966,26 @@ export default function EnhancedFileTree() {
               alert('Please re-authenticate with Google Drive first.');
               return;
             }
-            const folderName = prompt('Enter folder name:');
+            
+            // Check if selected item is a folder
+            let targetFolderId = null;
+            if (selectedFileId) {
+              const selectedFile = findFileById(fileTree, selectedFileId);
+              if (selectedFile?.type === 'folder') {
+                targetFolderId = selectedFileId;
+              }
+            }
+            
+            const folderName = prompt(`Enter folder name${targetFolderId ? ` (will be created in selected folder)` : ''}:`);
             if (folderName && folderName.trim()) {
-              handleCreateFolder(null, folderName.trim());
+              handleCreateFolder(targetFolderId, folderName.trim());
             }
           }}
-          title="New Folder"
+          title={(() => {
+            const selectedFile = selectedFileId ? findFileById(fileTree, selectedFileId) : null;
+            const inFolder = selectedFile?.type === 'folder' ? ` in ${selectedFile.name}` : '';
+            return `New Folder${inFolder} (Ctrl+Shift+N)`;
+          })()}
           style={{
             display: 'flex',
             alignItems: 'center',
