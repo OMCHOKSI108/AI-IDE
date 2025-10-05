@@ -4,7 +4,7 @@ import { Project } from '../models/Project.js';
 import { File } from '../models/File.js';
 import { User } from '../models/User.js';
 import { driveFileService } from '../services/driveFile.service.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { authenticateToken } from '../middleware/auth.middleware.js';
 import crypto from 'crypto';
 
 const router = express.Router();
@@ -14,7 +14,7 @@ const router = express.Router();
  * @desc    List project files (file tree)
  * @access  Private
  */
-router.get('/:projectId/files', authMiddleware, async (req, res) => {
+router.get('/:projectId/files', authenticateToken, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { path } = req.query;
@@ -68,7 +68,7 @@ router.get('/:projectId/files', authMiddleware, async (req, res) => {
  * @access  Private
  * @query   path - File path to read or fileId
  */
-router.get('/:projectId/content', authMiddleware, async (req, res) => {
+router.get('/:projectId/content', authenticateToken, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { path: filePath, fileId } = req.query;
@@ -188,7 +188,7 @@ router.get('/:projectId/content', authMiddleware, async (req, res) => {
  * @access  Private
  * @query   path - File path to write or fileId
  */
-router.put('/:projectId/content', authMiddleware, async (req, res) => {
+router.put('/:projectId/content', authenticateToken, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { path: filePath, fileId } = req.query;
@@ -325,7 +325,7 @@ router.put('/:projectId/content', authMiddleware, async (req, res) => {
  * @desc    Create new file or folder
  * @access  Private
  */
-router.post('/:projectId/create', authMiddleware, async (req, res) => {
+router.post('/:projectId/create', authenticateToken, async (req, res) => {
   try {
     const { projectId } = req.params;
     const { name, type, path, parentId, content = '' } = req.body;
@@ -528,7 +528,7 @@ router.post('/:projectId/create', authMiddleware, async (req, res) => {
  * @desc    Delete file or folder
  * @access  Private
  */
-router.delete('/:projectId/:fileId', authMiddleware, async (req, res) => {
+router.delete('/:projectId/:fileId', authenticateToken, async (req, res) => {
   try {
     const { projectId, fileId } = req.params;
 

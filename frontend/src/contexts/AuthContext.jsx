@@ -106,6 +106,8 @@ export const AuthProvider = ({ children }) => {
     window.location.href = `${axios.defaults.baseURL}/auth/google`;
   };
 
+
+
   const logout = async () => {
     try {
       await axios.post('/auth/logout');

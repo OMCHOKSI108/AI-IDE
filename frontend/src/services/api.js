@@ -90,6 +90,8 @@ class APIService {
     });
   }
 
+
+
   async logout() {
     const result = await this.request('/auth/logout', { method: 'POST' });
     this.setToken(null);

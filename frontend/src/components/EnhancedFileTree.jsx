@@ -5,39 +5,135 @@ import { useAuth } from '../contexts/AuthContext';
 const FileIcon = ({ file, isOpen }) => {
   const getIcon = () => {
     if (file.type === 'folder') {
-      return isOpen ? '📂' : '📁';
+      return {
+        icon: isOpen ? '▼' : '▶',
+        color: '#cccccc',
+        background: isOpen ? '#dcb67a' : '#dcb67a',
+        emoji: isOpen ? '📂' : '📁'
+      };
     }
     
     const extension = file.extension || file.name?.split('.').pop()?.toLowerCase();
     const iconMap = {
-      'js': '🟨',
-      'jsx': '⚛️',
-      'ts': '🔷',
-      'tsx': '⚛️',
-      'py': '🐍',
-      'html': '🌐',
-      'css': '🎨',
-      'json': '📋',
-      'md': '📝',
-      'txt': '📄',
-      'xml': '📃',
-      'yml': '⚙️',
-      'yaml': '⚙️',
-      'sh': '🖥️',
-      'sql': '🗃️',
-      'php': '🐘',
-      'java': '☕',
-      'cpp': '⚙️',
-      'c': '⚙️',
-      'go': '🐹',
-      'rs': '🦀',
-      'rb': '💎'
+      'js': { icon: 'JS', color: '#000', background: '#f7df1e' },
+      'jsx': { icon: 'JSX', color: '#000', background: '#61dafb' },
+      'ts': { icon: 'TS', color: '#fff', background: '#3178c6' },
+      'tsx': { icon: 'TSX', color: '#000', background: '#61dafb' },
+      'py': { icon: 'PY', color: '#fff', background: '#3776ab' },
+      'html': { icon: 'HTML', color: '#fff', background: '#e34c26', fontSize: '9px' },
+      'css': { icon: 'CSS', color: '#fff', background: '#1572b6' },
+      'scss': { icon: 'SCSS', color: '#fff', background: '#cf649a', fontSize: '8px' },
+      'sass': { icon: 'SASS', color: '#fff', background: '#cf649a', fontSize: '8px' },
+      'json': { icon: '{}', color: '#000', background: '#cbcb41' },
+      'md': { icon: 'MD', color: '#fff', background: '#519aba' },
+      'txt': { icon: 'TXT', color: '#000', background: '#a8a8a8', fontSize: '9px' },
+      'xml': { icon: 'XML', color: '#000', background: '#f69220', fontSize: '9px' },
+      'yml': { icon: 'YML', color: '#fff', background: '#cb171e', fontSize: '9px' },
+      'yaml': { icon: 'YAML', color: '#fff', background: '#cb171e', fontSize: '8px' },
+      'sh': { icon: 'SH', color: '#fff', background: '#4eaa25' },
+      'bash': { icon: 'BASH', color: '#fff', background: '#4eaa25', fontSize: '8px' },
+      'sql': { icon: 'SQL', color: '#fff', background: '#c178b3', fontSize: '9px' },
+      'php': { icon: 'PHP', color: '#fff', background: '#777bb4', fontSize: '9px' },
+      'java': { icon: 'JAVA', color: '#000', background: '#ed8b00', fontSize: '8px' },
+      'cpp': { icon: 'C++', color: '#fff', background: '#00599c', fontSize: '9px' },
+      'c': { icon: 'C', color: '#000', background: '#a8b9cc' },
+      'h': { icon: 'H', color: '#000', background: '#a8b9cc' },
+      'go': { icon: 'GO', color: '#fff', background: '#00add8' },
+      'rs': { icon: 'RS', color: '#000', background: '#dea584' },
+      'rb': { icon: 'RB', color: '#fff', background: '#cc342d' },
+      'vue': { icon: 'VUE', color: '#fff', background: '#4fc08d', fontSize: '9px' },
+      'dockerfile': { icon: '🐳', color: '#2496ed', background: 'transparent' },
+      'gitignore': { icon: 'GIT', color: '#fff', background: '#f05032', fontSize: '9px' },
+      'env': { icon: 'ENV', color: '#000', background: '#ecd53f', fontSize: '9px' },
+      'lock': { icon: '🔒', color: '#a8a8a8', background: 'transparent' },
+      'log': { icon: 'LOG', color: '#fff', background: '#a8a8a8', fontSize: '9px' },
+      'pdf': { icon: 'PDF', color: '#fff', background: '#f40f02', fontSize: '9px' },
+      'zip': { icon: 'ZIP', color: '#fff', background: '#a8a8a8', fontSize: '9px' },
+      'tar': { icon: 'TAR', color: '#fff', background: '#a8a8a8', fontSize: '9px' },
+      'gz': { icon: 'GZ', color: '#fff', background: '#a8a8a8' },
+      'png': { icon: '🖼️', color: '#a8a8a8', background: 'transparent' },
+      'jpg': { icon: '🖼️', color: '#a8a8a8', background: 'transparent' },
+      'jpeg': { icon: '🖼️', color: '#a8a8a8', background: 'transparent' },
+      'gif': { icon: '🖼️', color: '#a8a8a8', background: 'transparent' },
+      'svg': { icon: 'SVG', color: '#000', background: '#ffb13b', fontSize: '9px' },
+      'ico': { icon: '🖼️', color: '#a8a8a8', background: 'transparent' },
     };
     
-    return iconMap[extension] || '📄';
+    // Special filename handling
+    const fileName = file.name.toLowerCase();
+    if (fileName === 'package.json') return { icon: '📦', color: '#e8274b', background: 'transparent' };
+    if (fileName === 'tsconfig.json') return { icon: 'TS', color: '#fff', background: '#3178c6' };
+    if (fileName === 'webpack.config.js') return { icon: '⚙️', color: '#8dd6f9', background: 'transparent' };
+    if (fileName === 'vite.config.js') return { icon: '⚡', color: '#646cff', background: 'transparent' };
+    if (fileName === 'dockerfile') return { icon: '🐳', color: '#2496ed', background: 'transparent' };
+    if (fileName === '.gitignore') return { icon: 'GIT', color: '#fff', background: '#f05032', fontSize: '9px' };
+    if (fileName === 'readme.md') return { icon: '📖', color: '#519aba', background: 'transparent' };
+    if (fileName.startsWith('.env')) return { icon: 'ENV', color: '#000', background: '#ecd53f', fontSize: '9px' };
+    
+    return iconMap[extension] || { icon: '📄', color: '#a8a8a8', background: 'transparent' };
   };
 
-  return <span style={{ marginRight: '6px', fontSize: '14px' }}>{getIcon()}</span>;
+  const iconData = getIcon();
+
+  // Special handling for folders
+  if (file.type === 'folder') {
+    return (
+      <span 
+        style={{ 
+          marginRight: '6px', 
+          fontSize: '14px', 
+          color: iconData.background,
+          display: 'inline-flex',
+          alignItems: 'center',
+          width: '16px',
+          justifyContent: 'center'
+        }}
+      >
+        {iconData.emoji}
+      </span>
+    );
+  }
+
+  // For files with background (badge-style)
+  if (iconData.background && iconData.background !== 'transparent') {
+    return (
+      <span 
+        style={{ 
+          marginRight: '6px', 
+          fontSize: iconData.fontSize || '10px', 
+          color: iconData.color,
+          backgroundColor: iconData.background,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '16px',
+          height: '16px',
+          borderRadius: '2px',
+          fontWeight: 'bold',
+          fontFamily: 'monospace'
+        }}
+      >
+        {iconData.icon}
+      </span>
+    );
+  }
+
+  // For files with emoji or no background
+  return (
+    <span 
+      style={{ 
+        marginRight: '6px', 
+        fontSize: '14px', 
+        color: iconData.color,
+        display: 'inline-flex',
+        alignItems: 'center',
+        width: '16px',
+        justifyContent: 'center'
+      }}
+    >
+      {iconData.icon}
+    </span>
+  );
 };
 
 const SyncStatusIcon = ({ status }) => {
@@ -162,10 +258,22 @@ const FileTreeItem = ({
           margin: '1px 4px',
           fontSize: '14px',
           color: '#f0f6fc',
-          userSelect: 'none'
+          userSelect: 'none',
+          transition: 'background-color 0.1s ease',
+          border: isSelected ? '1px solid #005fb8' : '1px solid transparent'
         }}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
+        onMouseEnter={(e) => {
+          if (!isSelected) {
+            e.currentTarget.style.backgroundColor = '#2a2d2e';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isSelected) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}
       >
         {isFolder && (
           <span 
@@ -217,12 +325,14 @@ const FileTreeItem = ({
             position: 'fixed',
             left: contextMenuPos.x,
             top: contextMenuPos.y,
-            background: '#21262d',
-            border: '1px solid #30363d',
-            borderRadius: '4px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
+            background: '#252526',
+            border: '1px solid #454545',
+            borderRadius: '5px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.16)',
             zIndex: 1000,
-            minWidth: '150px'
+            minWidth: '180px',
+            padding: '4px 0',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif'
           }}
         >
           {isFolder && (
@@ -230,71 +340,115 @@ const FileTreeItem = ({
               <button
                 onClick={handleCreateFile}
                 style={{
-                  display: 'block',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '6px 12px',
                   border: 'none',
                   background: 'transparent',
-                  color: '#f0f6fc',
+                  color: '#cccccc',
                   textAlign: 'left',
                   cursor: 'pointer',
-                  fontSize: '14px'
+                  fontSize: '13px',
+                  transition: 'background-color 0.1s ease'
                 }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#2a2d2e'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               >
-                📄 New File
+                <span>📄</span>
+                <span>New File</span>
+                <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#858585' }}>Ctrl+N</span>
               </button>
               <button
                 onClick={handleCreateFolder}
                 style={{
-                  display: 'block',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '6px 12px',
                   border: 'none',
                   background: 'transparent',
-                  color: '#f0f6fc',
+                  color: '#cccccc',
                   textAlign: 'left',
                   cursor: 'pointer',
-                  fontSize: '14px'
+                  fontSize: '13px',
+                  transition: 'background-color 0.1s ease'
                 }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#2a2d2e'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               >
-                📁 New Folder
+                <span>📁</span>
+                <span>New Folder</span>
+                <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#858585' }}>Ctrl+Shift+N</span>
               </button>
-              <hr style={{ margin: '4px 0', border: '1px solid #30363d' }} />
+              <div style={{ 
+                height: '1px', 
+                backgroundColor: '#454545', 
+                margin: '4px 8px' 
+              }} />
             </>
           )}
           
           <button
             onClick={handleRename}
             style={{
-              display: 'block',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
               width: '100%',
-              padding: '8px 12px',
+              padding: '6px 12px',
               border: 'none',
               background: 'transparent',
-              color: '#f0f6fc',
+              color: '#cccccc',
               textAlign: 'left',
               cursor: 'pointer',
-              fontSize: '14px'
+              fontSize: '13px',
+              transition: 'background-color 0.1s ease'
             }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#2a2d2e'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
           >
-            ✏️ Rename
+            <span>✏️</span>
+            <span>Rename</span>
+            <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#858585' }}>F2</span>
           </button>
+          
+          <div style={{ 
+            height: '1px', 
+            backgroundColor: '#454545', 
+            margin: '4px 8px' 
+          }} />
           
           <button
             onClick={handleDelete}
             style={{
-              display: 'block',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
               width: '100%',
-              padding: '8px 12px',
+              padding: '6px 12px',
               border: 'none',
               background: 'transparent',
               color: '#f85149',
               textAlign: 'left',
               cursor: 'pointer',
-              fontSize: '14px'
+              fontSize: '13px',
+              transition: 'background-color 0.1s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#2a2d2e';
+              e.target.style.color = '#ff6b6b';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent';
+              e.target.style.color = '#f85149';
             }}
           >
-            🗑️ Delete
+            <span>🗑️</span>
+            <span>Delete</span>
+            <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#858585' }}>Del</span>
           </button>
         </div>
       )}
@@ -495,6 +649,85 @@ export default function EnhancedFileTree() {
     }
   }, [currentFile]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only handle shortcuts when file tree has focus or no specific input is focused
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.contentEditable === 'true'
+      );
+
+      if (isInputFocused) return;
+
+      // Ctrl+N: New File
+      if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        if (user?.driveAuthStatus?.requiresReauth) {
+          alert('Please re-authenticate with Google Drive first.');
+          return;
+        }
+        const fileName = prompt('Enter file name:');
+        if (fileName && fileName.trim()) {
+          handleCreateFile(null, fileName.trim());
+        }
+      }
+      
+      // Ctrl+Shift+N: New Folder
+      else if (e.ctrlKey && e.shiftKey && e.key === 'N') {
+        e.preventDefault();
+        if (user?.driveAuthStatus?.requiresReauth) {
+          alert('Please re-authenticate with Google Drive first.');
+          return;
+        }
+        const folderName = prompt('Enter folder name:');
+        if (folderName && folderName.trim()) {
+          handleCreateFolder(null, folderName.trim());
+        }
+      }
+      
+      // F2: Rename selected file
+      else if (e.key === 'F2') {
+        e.preventDefault();
+        if (!selectedFileId) {
+          alert('Please select a file or folder first.');
+          return;
+        }
+        const selectedFile = findFileById(fileTree, selectedFileId);
+        if (!selectedFile) return;
+        
+        const newName = prompt(`Rename ${selectedFile.name} to:`, selectedFile.name);
+        if (newName && newName.trim() && newName !== selectedFile.name) {
+          handleRename(selectedFileId, newName.trim());
+        }
+      }
+      
+      // Delete: Delete selected file
+      else if (e.key === 'Delete') {
+        e.preventDefault();
+        if (!selectedFileId) return;
+        
+        const selectedFile = findFileById(fileTree, selectedFileId);
+        if (!selectedFile) return;
+        
+        if (window.confirm(`Are you sure you want to delete ${selectedFile.name}?`)) {
+          handleDelete(selectedFileId);
+        }
+      }
+      
+      // F5: Refresh
+      else if (e.key === 'F5') {
+        e.preventDefault();
+        window.location.reload();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedFileId, user, handleCreateFile, handleCreateFolder, handleRename, handleDelete, findFileById, fileTree]);
+
   // Close root context menu when clicking outside
   useEffect(() => {
     const handleClickOutside = () => setShowRootContextMenu(false);
@@ -636,6 +869,214 @@ export default function EnhancedFileTree() {
         </div>
       </div>
 
+      {/* VS Code-style toolbar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '4px 8px',
+        borderBottom: '1px solid #30363d',
+        marginBottom: '4px'
+      }}>
+        <button
+          onClick={() => {
+            if (user?.driveAuthStatus?.requiresReauth) {
+              alert('Please re-authenticate with Google Drive first.');
+              return;
+            }
+            const fileName = prompt('Enter file name:');
+            if (fileName && fileName.trim()) {
+              handleCreateFile(null, fileName.trim());
+            }
+          }}
+          title="New File (Ctrl+N)"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            border: 'none',
+            borderRadius: '4px',
+            background: 'transparent',
+            color: '#f0f6fc',
+            cursor: 'pointer',
+            fontSize: '16px',
+            transition: 'background-color 0.1s ease'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#30363d'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        >
+          ＋
+        </button>
+        
+        <button
+          onClick={() => {
+            if (user?.driveAuthStatus?.requiresReauth) {
+              alert('Please re-authenticate with Google Drive first.');
+              return;
+            }
+            const folderName = prompt('Enter folder name:');
+            if (folderName && folderName.trim()) {
+              handleCreateFolder(null, folderName.trim());
+            }
+          }}
+          title="New Folder"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            border: 'none',
+            borderRadius: '4px',
+            background: 'transparent',
+            color: '#dcb67a',
+            cursor: 'pointer',
+            fontSize: '14px',
+            transition: 'background-color 0.1s ease'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#30363d'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        >
+          📁
+        </button>
+
+        <div style={{ 
+          width: '1px', 
+          height: '16px', 
+          backgroundColor: '#30363d',
+          margin: '0 4px'
+        }} />
+
+        <button
+          onClick={() => {
+            if (!selectedFileId) {
+              alert('Please select a file or folder first.');
+              return;
+            }
+            const selectedFile = findFileById(fileTree, selectedFileId);
+            if (!selectedFile) return;
+            
+            const newName = prompt(`Rename ${selectedFile.name} to:`, selectedFile.name);
+            if (newName && newName.trim() && newName !== selectedFile.name) {
+              handleRename(selectedFileId, newName.trim());
+            }
+          }}
+          title="Rename (F2)"
+          disabled={!selectedFileId}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            border: 'none',
+            borderRadius: '4px',
+            background: 'transparent',
+            color: selectedFileId ? '#f0f6fc' : '#656d76',
+            cursor: selectedFileId ? 'pointer' : 'not-allowed',
+            fontSize: '12px',
+            transition: 'background-color 0.1s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (selectedFileId) e.target.style.backgroundColor = '#30363d';
+          }}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+          >
+            ✎
+          </button>        <button
+          onClick={() => {
+            if (!selectedFileId) {
+              alert('Please select a file or folder first.');
+              return;
+            }
+            const selectedFile = findFileById(fileTree, selectedFileId);
+            if (!selectedFile) return;
+            
+            if (window.confirm(`Are you sure you want to delete ${selectedFile.name}?`)) {
+              handleDelete(selectedFileId);
+            }
+          }}
+          title="Delete (Delete)"
+          disabled={!selectedFileId}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            border: 'none',
+            borderRadius: '4px',
+            background: 'transparent',
+            color: selectedFileId ? '#f85149' : '#656d76',
+            cursor: selectedFileId ? 'pointer' : 'not-allowed',
+            fontSize: '12px',
+            transition: 'background-color 0.1s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (selectedFileId) e.target.style.backgroundColor = '#30363d';
+          }}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        >
+          🗑️
+        </button>
+
+        <div style={{ flex: 1 }} />
+
+        <button
+          onClick={() => {
+            // Refresh file tree
+            window.location.reload(); // Simple refresh for now
+          }}
+          title="Refresh Explorer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            border: 'none',
+            borderRadius: '4px',
+            background: 'transparent',
+            color: '#f0f6fc',
+            cursor: 'pointer',
+            fontSize: '12px',
+            transition: 'background-color 0.1s ease'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#30363d'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        >
+          🔄
+        </button>
+
+        <button
+          onClick={() => {
+            // Collapse all folders
+            setExpandedFolders(new Set());
+          }}
+          title="Collapse All"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            border: 'none',
+            borderRadius: '4px',
+            background: 'transparent',
+            color: '#f0f6fc',
+            cursor: 'pointer',
+            fontSize: '12px',
+            transition: 'background-color 0.1s ease'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#30363d'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        >
+          📂
+        </button>
+      </div>
+
       {/* File tree */}
       <div 
         style={{ minHeight: '200px', position: 'relative' }}
@@ -682,45 +1123,61 @@ export default function EnhancedFileTree() {
               position: 'fixed',
               left: rootContextMenuPos.x,
               top: rootContextMenuPos.y,
-              background: '#21262d',
-              border: '1px solid #30363d',
-              borderRadius: '4px',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
+              background: '#252526',
+              border: '1px solid #454545',
+              borderRadius: '5px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.16)',
               zIndex: 1000,
-              minWidth: '150px'
+              minWidth: '180px',
+              padding: '4px 0',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif'
             }}
           >
             <button
               onClick={handleCreateRootFile}
               style={{
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 width: '100%',
-                padding: '8px 12px',
+                padding: '6px 12px',
                 border: 'none',
                 background: 'transparent',
-                color: '#f0f6fc',
+                color: '#cccccc',
                 textAlign: 'left',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '13px',
+                transition: 'background-color 0.1s ease'
               }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#2a2d2e'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             >
-              📄 New File
+              <span>📄</span>
+              <span>New File</span>
+              <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#858585' }}>Ctrl+N</span>
             </button>
             <button
               onClick={handleCreateRootFolder}
               style={{
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 width: '100%',
-                padding: '8px 12px',
+                padding: '6px 12px',
                 border: 'none',
                 background: 'transparent',
-                color: '#f0f6fc',
+                color: '#cccccc',
                 textAlign: 'left',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '13px',
+                transition: 'background-color 0.1s ease'
               }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#2a2d2e'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
             >
-              📁 New Folder
+              <span>📁</span>
+              <span>New Folder</span>
+              <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#858585' }}>Ctrl+Shift+N</span>
             </button>
           </div>
         )}

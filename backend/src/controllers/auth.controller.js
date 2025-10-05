@@ -244,27 +244,44 @@ router.get('/google/callback', async (req, res) => {
 
 /**
  * @route   GET /api/v1/auth/drive-status
- * @desc    Check Drive authentication status (debugging endpoint)
+ * @desc    Check current user's Google Drive authentication status
  * @access  Private
  */
 router.get('/drive-status', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('+driveAccessToken +driveRefreshToken +driveTokenExpiresAt');
     
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    logger.info('Drive status check', {
+      userId: req.user._id,
+      hasAccessToken: !!user.driveAccessToken,
+      hasRefreshToken: !!user.driveRefreshToken,
+      tokenExpiresAt: user.driveTokenExpiresAt,
+      isExpired: user.isTokenExpired(),
+      accessTokenLength: user.driveAccessToken ? user.driveAccessToken.length : 0,
+      refreshTokenLength: user.driveRefreshToken ? user.driveRefreshToken.length : 0
+    });
+
     res.json({
       success: true,
       data: {
-        userId: user._id,
+        isDriveConnected: !!user.driveAccessToken && !user.isTokenExpired(),
         hasAccessToken: !!user.driveAccessToken,
         hasRefreshToken: !!user.driveRefreshToken,
         tokenExpiresAt: user.driveTokenExpiresAt,
-        isTokenExpired: user.isTokenExpired(),
+        isExpired: user.isTokenExpired(),
         requiresReauth: !user.driveAccessToken || user.isTokenExpired(),
         tokenLength: user.driveAccessToken ? user.driveAccessToken.length : 0
       }
     });
   } catch (error) {
-    logger.error('Drive status check failed:', error);
+    logger.error('Drive status check error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to check Drive status'
@@ -331,7 +348,10 @@ router.get('/me', authenticateToken, async (req, res) => {
     };
 
     logger.info('User profile requested with Drive status', {
-      userId: userWithDriveTokens._id,
+      reqUserId: req.user._id,
+      reqUserIdType: typeof req.user._id,
+      reqUserIdString: String(req.user._id),
+      foundUserId: userWithDriveTokens._id,
       email: userWithDriveTokens.email,
       driveAuthStatus
     });
@@ -397,5 +417,7 @@ router.put('/preferences', authenticateToken, async (req, res) => {
     });
   }
 });
+
+
 
 export default router;
